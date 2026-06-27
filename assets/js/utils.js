@@ -8,9 +8,22 @@ window.DashboardUtils = (() => {
   };
   const clean = v => String(v ?? '').trim();
   const sum = arr => arr.reduce((a, b) => a + Number(b || 0), 0);
+  const normalizeKey = key => clean(key).replace(/[\s\r\n\t　:：]/g, '');
   const get = (row, names) => {
     for (const name of names) {
       if (row[name] !== undefined && row[name] !== null && String(row[name]).trim() !== '') return row[name];
+    }
+    const keys = Object.keys(row || {}).map(k => ({ raw: k, norm: normalizeKey(k) }));
+    for (const name of names) {
+      const target = normalizeKey(name);
+      const item = keys.find(k => k.norm === target);
+      if (item && row[item.raw] !== undefined && row[item.raw] !== null && String(row[item.raw]).trim() !== '') return row[item.raw];
+    }
+    for (const name of names) {
+      const target = normalizeKey(name);
+      if (target.length < 2) continue;
+      const item = keys.find(k => k.norm.includes(target) || target.includes(k.norm));
+      if (item && row[item.raw] !== undefined && row[item.raw] !== null && String(row[item.raw]).trim() !== '') return row[item.raw];
     }
     return '';
   };
