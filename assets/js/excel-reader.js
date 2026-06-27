@@ -21,7 +21,7 @@ window.DashboardExcel = (() => {
   function loadSheet(workbook, names) {
     const arr = Array.isArray(names) ? names : [names];
     const name = workbook.SheetNames.find(s => arr.some(n => s === n || s.includes(n)));
-    return name ? XLSX.utils.sheet_to_json(workbook.Sheets[name], { defval: '' }) : [];
+    return name ? XLSX.utils.sheet_to_json(workbook.Sheets[name], { defval: '', raw: false }) : [];
   }
 
   function parseIncome(workbook) {
@@ -82,7 +82,7 @@ window.DashboardExcel = (() => {
 
   async function readFile(file) {
     const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'array' });
+    const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
     return parseWorkbook(workbook, file.name);
   }
 
