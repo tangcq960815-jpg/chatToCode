@@ -44,12 +44,10 @@
   }
 
   function $(id) { return document.getElementById(id); }
-
   function setStatus(text) { $('loadStatus').textContent = text; }
-
-  function currentData() {
-    return U.filterByPeriod(state.fullData, state.selectedPeriod);
-  }
+  function currentData() { return U.filterByPeriod(state.fullData, state.selectedPeriod); }
+  function emptyText() { return state.selectedPeriod === 'all' ? '暂无数据，请选择Excel。' : `当前选择 ${state.selectedPeriod}，这个分类暂无数据；可切换“全部年月”或确认该 Sheet 是否有此月份记录。`; }
+  function summaryText(data) { return `读取成功：收入${data.incomeRows.length}条、挂号${data.regRows.length}条、结算${data.settleRows.length}条、床日${data.bedRows.length}条`; }
 
   function populatePeriodSelect() {
     const select = $('periodSelect');
@@ -92,7 +90,7 @@
 
   function renderRank(id, data, moneyMode = true) {
     if (!data.length) {
-      $(id).innerHTML = '<div class="empty">暂无数据，请选择Excel或调整年月。</div>';
+      $(id).innerHTML = `<div class="empty">${emptyText()}</div>`;
       return;
     }
     const max = Math.max(...data.map(d => Number(d[1] || 0))) || 1;
@@ -110,13 +108,13 @@
     });
     const incomeRows = [...incomeMap.values()].sort((a, b) => b.amount - a.amount);
     const totalIncome = U.sum(incomeRows.map(r => r.amount));
-    $('incomeTable').innerHTML = incomeRows.map(r => `<tr><td>${r.dept}</td><td>${r.category}</td><td>${r.quantity.toLocaleString('zh-CN')}</td><td>${U.money(r.amount)}</td><td>${totalIncome ? (r.amount / totalIncome * 100).toFixed(2) : 0}%</td></tr>`).join('') || '<tr><td colspan="5">暂无数据</td></tr>';
+    $('incomeTable').innerHTML = incomeRows.map(r => `<tr><td>${r.dept}</td><td>${r.category}</td><td>${r.quantity.toLocaleString('zh-CN')}</td><td>${U.money(r.amount)}</td><td>${totalIncome ? (r.amount / totalIncome * 100).toFixed(2) : 0}%</td></tr>`).join('') || `<tr><td colspan="5">${emptyText()}</td></tr>`;
 
-    $('regTable').innerHTML = data.regRows.map(r => `<tr><td>${r.period || '-'}</td><td>${r.dept}</td><td>${Number(r.count).toLocaleString('zh-CN')}</td><td>${U.money(r.income)}</td></tr>`).join('') || '<tr><td colspan="4">暂无数据</td></tr>';
+    $('regTable').innerHTML = data.regRows.map(r => `<tr><td>${r.period || '-'}</td><td>${r.dept}</td><td>${Number(r.count).toLocaleString('zh-CN')}</td><td>${U.money(r.income)}</td></tr>`).join('') || `<tr><td colspan="4">${emptyText()}</td></tr>`;
 
     const settleGrouped = U.groupCountAmount(data.settleRows);
     const totalSettle = U.sum(settleGrouped.map(r => r.amount));
-    $('settlementTable').innerHTML = settleGrouped.map(r => `<tr><td>${r.dept}</td><td>${r.count}</td><td>${U.money(r.amount)}</td><td>${U.money(r.amount / Math.max(1, r.count))}</td><td>${totalSettle ? (r.amount / totalSettle * 100).toFixed(2) : 0}%</td></tr>`).join('') || '<tr><td colspan="5">暂无数据</td></tr>';
+    $('settlementTable').innerHTML = settleGrouped.map(r => `<tr><td>${r.dept}</td><td>${r.count}</td><td>${U.money(r.amount)}</td><td>${U.money(r.amount / Math.max(1, r.count))}</td><td>${totalSettle ? (r.amount / totalSettle * 100).toFixed(2) : 0}%</td></tr>`).join('') || `<tr><td colspan="5">${emptyText()}</td></tr>`;
   }
 
   function renderMini(data) {
@@ -184,7 +182,7 @@
       state.fullData = await E.readFile(file);
       state.selectedPeriod = 'all';
       $('fileText').textContent = '文件：' + file.name;
-      setStatus('读取成功：' + (state.fullData.sheetNames || []).join('、'));
+      setStatus(summaryText(state.fullData));
       renderAll();
     } catch (err) {
       console.error(err);
