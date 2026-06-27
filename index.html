@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>医疗机构数据看板</title>
+  <style>
+    :root {
+      --bg: #eef5ff;
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-strong: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --primary: #1e88e5;
+      --primary-dark: #145da0;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #7c3aed;
+      --cyan: #06b6d4;
+      --border: rgba(30, 136, 229, 0.14);
+      --shadow: 0 18px 50px rgba(26, 64, 120, 0.12);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.22), transparent 32%),
+        radial-gradient(circle at top right, rgba(6, 182, 212, 0.24), transparent 28%),
+        linear-gradient(135deg, #f7fbff 0%, var(--bg) 45%, #f3f7ff 100%);
+    }
+
+    .app {
+      width: min(1440px, 96vw);
+      margin: 0 auto;
+      padding: 26px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px 26px;
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #1e88e5, #06b6d4);
+      box-shadow: 0 14px 30px rgba(30, 136, 229, 0.28);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(24px, 3vw, 38px);
+      letter-spacing: 1px;
+    }
+
+    .sub-title {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--primary-dark);
+      font-weight: 700;
+      font-size: 13px;
+      box-shadow: 0 8px 20px rgba(30, 136, 229, 0.08);
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .cards {
+      grid-template-columns: repeat(6, minmax(160px, 1fr));
+    }
+
+    .card, .panel {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .card {
+      min-height: 132px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      right: -24px;
+      bottom: -24px;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.1;
+    }
+
+    .card .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .card .value {
+      font-size: 30px;
+      font-weight: 850;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .card .trend {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--success);
+    }
+
+    .card .trend.down {
+      color: var(--danger);
+    }
+
+    .main-layout {
+      grid-template-columns: 1.45fr 0.9fr;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 22px;
+      min-height: 280px;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .panel-title h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .panel-title span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      height: 260px;
+    }
+
+    .two-col {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .dept-row {
+      display: grid;
+      grid-template-columns: 84px 1fr 58px;
+      gap: 12px;
+      align-items: center;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+
+    .bar-wrap {
+      height: 10px;
+      border-radius: 999px;
+      background: #e8f1fb;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--primary), var(--cyan));
+    }
+
+    .status-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #f8fbff;
+      border: 1px solid rgba(102, 112, 133, 0.12);
+    }
+
+    .status-item b {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .status-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .badge {
+      align-self: flex-start;
+      white-space: nowrap;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .badge.warning { background: var(--warning); }
+    .badge.danger { background: var(--danger); }
+    .badge.success { background: var(--success); }
+    .badge.primary { background: var(--primary); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 16px;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(102, 112, 133, 0.12);
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 13px;
+      background: #f3f8ff;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .mini-stat {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .mini-stat div {
+      padding: 14px;
+      border-radius: 16px;
+      background: #f8fbff;
+      border: 1px solid rgba(102, 112, 133, 0.1);
+    }
+
+    .mini-stat strong {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .mini-stat span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 1180px) {
+      .cards { grid-template-columns: repeat(3, 1fr); }
+      .main-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .top-actions { justify-content: flex-start; }
+      .cards, .two-col { grid-template-columns: 1fr; }
+      .mini-stat { grid-template-columns: 1fr; }
+      .panel { padding: 18px; }
+      canvas { height: 230px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="topbar">
+      <div class="brand">
+        <div class="logo">医</div>
+        <div>
+          <h1>医疗机构数据看板</h1>
+          <div class="sub-title">门急诊、住院、床位、收入、运营预警一屏掌握</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="pill">机构：示例医院</div>
+        <div class="pill" id="todayText">数据日期：--</div>
+        <div class="pill">刷新频率：5 分钟</div>
+      </div>
+    </section>
+
+    <section class="grid cards" id="metricCards"></section>
+
+    <section class="grid main-layout">
+      <div class="panel">
+        <div class="panel-title">
+          <h2>近 7 日门急诊趋势</h2>
+          <span>单位：人次</span>
+        </div>
+        <canvas id="visitTrend" width="900" height="300"></canvas>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <h2>床位占用情况</h2>
+          <span>全院实时</span>
+        </div>
+        <canvas id="bedDonut" width="420" height="300"></canvas>
+        <div class="mini-stat">
+          <div><strong>82%</strong><span>床位使用率</span></div>
+          <div><strong>246</strong><span>在院人数</span></div>
+          <div><strong>54</strong><span>可用床位</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid two-col">
+      <div class="panel">
+        <div class="panel-title">
+          <h2>科室门诊量排行</h2>
+          <span>今日 TOP 6</span>
+        </div>
+        <div id="deptRank"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <h2>运营预警</h2>
+          <span>自动识别异常指标</span>
+        </div>
+        <div class="status-list" id="alerts"></div>
+      </div>
+    </section>
+
+    <section class="panel grid" style="margin-top:18px;">
+      <div class="panel-title">
+        <h2>重点科室运行明细</h2>
+        <span>挂号、候诊、收入、床位</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>科室</th>
+              <th>门诊人次</th>
+              <th>急诊人次</th>
+              <th>平均候诊</th>
+              <th>住院人数</th>
+              <th>床位使用率</th>
+              <th>今日收入</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody id="deptTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="footer-note">说明：当前页面为静态 HTML 示例数据，可后续对接 HIS / LIS / EMR / 财务系统接口。</div>
+  </main>
+
+  <script>
+    const metrics = [
+      { label: '今日门诊人次', value: '3,286', trend: '较昨日 +8.6%', color: '#1e88e5' },
+      { label: '今日急诊人次', value: '426', trend: '较昨日 +3.2%', color: '#ef4444' },
+      { label: '在院人数', value: '246', trend: '较昨日 +12', color: '#7c3aed' },
+      { label: '床位使用率', value: '82%', trend: '安全区间', color: '#16a34a' },
+      { label: '今日医疗收入', value: '128.6万', trend: '较昨日 +6.1%', color: '#f59e0b' },
+      { label: '平均候诊时间', value: '18分', trend: '较昨日 -4分', color: '#06b6d4' }
+    ];
+
+    const visits = [2380, 2640, 2510, 2890, 3060, 2920, 3286];
+    const visitLabels = ['周日', '周一', '周二', '周三', '周四', '周五', '今日'];
+
+    const departments = [
+      { name: '内科', count: 728, emergency: 86, wait: '22 分', inpatient: 68, bed: '89%', income: '24.6 万', status: '繁忙' },
+      { name: '外科', count: 563, emergency: 74, wait: '18 分', inpatient: 55, bed: '84%', income: '21.8 万', status: '正常' },
+      { name: '儿科', count: 486, emergency: 112, wait: '31 分', inpatient: 28, bed: '76%', income: '13.2 万', status: '预警' },
+      { name: '妇产科', count: 432, emergency: 38, wait: '16 分', inpatient: 42, bed: '81%', income: '18.5 万', status: '正常' },
+      { name: '检验科', count: 398, emergency: 32, wait: '12 分', inpatient: 0, bed: '-', income: '16.9 万', status: '正常' },
+      { name: '影像科', count: 356, emergency: 29, wait: '26 分', inpatient: 0, bed: '-', income: '19.1 万', status: '关注' }
+    ];
+
+    const alerts = [
+      { title: '儿科候诊时间偏高', desc: '平均候诊 31 分钟，建议增开诊室或调整排班。', type: 'warning', text: '预警' },
+      { title: '急诊接诊量上升', desc: '今日急诊人次较昨日上升 3.2%，请关注夜间值班压力。', type: 'danger', text: '关注' },
+      { title: '床位总体处于安全区间', desc: '全院床位使用率 82%，仍有 54 张可用床位。', type: 'success', text: '正常' },
+      { title: '检验报告周转稳定', desc: '常规检验平均出报告时间保持在目标范围内。', type: 'primary', text: '稳定' }
+    ];
+
+    function renderMetrics() {
+      const box = document.getElementById('metricCards');
+      box.innerHTML = metrics.map(item => `
+        <article class="card" style="color:${item.color}">
+          <div class="label">${item.label}</div>
+          <div class="value">${item.value}</div>
+          <div class="trend ${item.trend.includes('-') ? 'down' : ''}">${item.trend}</div>
+        </article>
+      `).join('');
+    }
+
+    function drawLineChart() {
+      const canvas = document.getElementById('visitTrend');
+      const ctx = canvas.getContext('2d');
+      const { width, height } = canvas;
+      ctx.clearRect(0, 0, width, height);
+
+      const padding = { top: 26, right: 26, bottom: 46, left: 58 };
+      const chartW = width - padding.left - padding.right;
+      const chartH = height - padding.top - padding.bottom;
+      const max = Math.max(...visits) + 300;
+      const min = Math.min(...visits) - 300;
+
+      ctx.strokeStyle = 'rgba(102,112,133,0.18)';
+      ctx.lineWidth = 1;
+      ctx.font = '13px Microsoft YaHei';
+      ctx.fillStyle = '#667085';
+
+      for (let i = 0; i <= 4; i++) {
+        const y = padding.top + (chartH / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(width - padding.right, y);
+        ctx.stroke();
+        const value = Math.round(max - ((max - min) / 4) * i);
+        ctx.fillText(value, 10, y + 4);
+      }
+
+      const points = visits.map((v, i) => {
+        const x = padding.left + (chartW / (visits.length - 1)) * i;
+        const y = padding.top + chartH - ((v - min) / (max - min)) * chartH;
+        return { x, y, v };
+      });
+
+      const gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+      gradient.addColorStop(0, 'rgba(30,136,229,0.28)');
+      gradient.addColorStop(1, 'rgba(30,136,229,0)');
+
+      ctx.beginPath();
+      points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+      ctx.lineTo(points[points.length - 1].x, height - padding.bottom);
+      ctx.lineTo(points[0].x, height - padding.bottom);
+      ctx.closePath();
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      ctx.beginPath();
+      points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+      ctx.strokeStyle = '#1e88e5';
+      ctx.lineWidth = 4;
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      points.forEach((p, i) => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.strokeStyle = '#1e88e5';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.fillStyle = '#172033';
+        ctx.textAlign = 'center';
+        ctx.fillText(p.v, p.x, p.y - 14);
+        ctx.fillStyle = '#667085';
+        ctx.fillText(visitLabels[i], p.x, height - 16);
+      });
+      ctx.textAlign = 'left';
+    }
+
+    function drawDonut() {
+      const canvas = document.getElementById('bedDonut');
+      const ctx = canvas.getContext('2d');
+      const { width, height } = canvas;
+      ctx.clearRect(0, 0, width, height);
+
+      const used = 0.82;
+      const cx = width / 2;
+      const cy = height / 2 - 6;
+      const radius = 92;
+      const lineWidth = 26;
+
+      ctx.lineWidth = lineWidth;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.strokeStyle = '#e8f1fb';
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * used);
+      ctx.strokeStyle = '#16a34a';
+      ctx.stroke();
+
+      ctx.fillStyle = '#172033';
+      ctx.font = '800 42px Microsoft YaHei';
+      ctx.textAlign = 'center';
+      ctx.fillText('82%', cx, cy + 8);
+      ctx.fillStyle = '#667085';
+      ctx.font = '14px Microsoft YaHei';
+      ctx.fillText('床位使用率', cx, cy + 38);
+      ctx.textAlign = 'left';
+    }
+
+    function renderDeptRank() {
+      const max = Math.max(...departments.map(d => d.count));
+      document.getElementById('deptRank').innerHTML = departments.map(d => `
+        <div class="dept-row">
+          <strong>${d.name}</strong>
+          <div class="bar-wrap"><div class="bar" style="width:${Math.round(d.count / max * 100)}%"></div></div>
+          <span>${d.count}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderAlerts() {
+      document.getElementById('alerts').innerHTML = alerts.map(item => `
+        <div class="status-item">
+          <div>
+            <b>${item.title}</b>
+            <p>${item.desc}</p>
+          </div>
+          <span class="badge ${item.type}">${item.text}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderDeptTable() {
+      document.getElementById('deptTable').innerHTML = departments.map(d => {
+        const badge = d.status === '预警' ? 'warning' : d.status === '繁忙' ? 'danger' : d.status === '关注' ? 'primary' : 'success';
+        return `
+          <tr>
+            <td><strong>${d.name}</strong></td>
+            <td>${d.count}</td>
+            <td>${d.emergency}</td>
+            <td>${d.wait}</td>
+            <td>${d.inpatient}</td>
+            <td>${d.bed}</td>
+            <td>${d.income}</td>
+            <td><span class="badge ${badge}">${d.status}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function setToday() {
+      const now = new Date();
+      const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      document.getElementById('todayText').textContent = `数据日期：${text}`;
+    }
+
+    function init() {
+      setToday();
+      renderMetrics();
+      drawLineChart();
+      drawDonut();
+      renderDeptRank();
+      renderAlerts();
+      renderDeptTable();
+    }
+
+    window.addEventListener('resize', () => {
+      drawLineChart();
+      drawDonut();
+    });
+
+    init();
+  </script>
+</body>
+</html>
