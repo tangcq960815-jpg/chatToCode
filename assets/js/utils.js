@@ -14,25 +14,58 @@ window.DashboardUtils = (() => {
     }
     return '';
   };
+
+  const normalizeYear = y => {
+    const n = parseInt(String(y || '').replace('年', '').trim(), 10);
+    return Number.isFinite(n) && n >= 1900 && n <= 2100 ? n : '';
+  };
+
   const normalizeMonth = m => {
     const n = parseInt(String(m || '').replace('月', '').trim(), 10);
-    return Number.isFinite(n) ? n : '';
+    return Number.isFinite(n) && n >= 1 && n <= 12 ? n : '';
   };
+
+  const excelSerialToPeriod = value => {
+    if (value === null || value === undefined || value === '') return '';
+    if (Object.prototype.toString.call(value) === '[object Date]' && !Number.isNaN(value.getTime())) {
+      return `${value.getFullYear()}年${value.getMonth() + 1}月`;
+    }
+    const text = String(value).trim();
+    if (!/^\d+(\.\d+)?$/.test(text)) return '';
+    const serial = Number(text);
+    if (!Number.isFinite(serial) || serial < 30000 || serial > 80000) return '';
+    const utcDays = Math.floor(serial - 25569);
+    const date = new Date(utcDays * 86400 * 1000);
+    if (Number.isNaN(date.getTime())) return '';
+    return `${date.getUTCFullYear()}年${date.getUTCMonth() + 1}月`;
+  };
+
   const periodFrom = (year, month, fallback) => {
+    const y = normalizeYear(year);
+    const m = normalizeMonth(month);
+    if (y && m) return `${y}年${m}月`;
+
     const fb = clean(fallback);
     if (fb) {
+      const datePeriod = excelSerialToPeriod(fallback);
+      if (datePeriod) return datePeriod;
+
       const match = fb.match(/(20\d{2})\D{0,3}(\d{1,2})/);
       if (match) return `${match[1]}年${parseInt(match[2], 10)}月`;
+
+      const yOnly = normalizeYear(fb);
+      if (yOnly && m) return `${yOnly}年${m}月`;
       return fb;
     }
-    const y = clean(year);
-    const m = normalizeMonth(month);
+
     return y && m ? `${y}年${m}月` : '';
   };
+
   const periodSortValue = p => {
     const m = String(p).match(/(20\d{2})年(\d{1,2})月/);
     return m ? Number(m[1]) * 100 + Number(m[2]) : 0;
   };
+
   const group = (rows, keyFn, valFn) => {
     const map = new Map();
     rows.forEach(row => {
@@ -41,6 +74,7 @@ window.DashboardUtils = (() => {
     });
     return [...map.entries()].sort((a, b) => b[1] - a[1]);
   };
+
   const groupCountAmount = rows => {
     const map = new Map();
     rows.forEach(row => {
@@ -52,6 +86,7 @@ window.DashboardUtils = (() => {
     });
     return [...map.values()].sort((a, b) => b.amount - a.amount);
   };
+
   const uniquePeriods = data => {
     const set = new Set();
     ['incomeRows', 'regRows', 'settleRows', 'bedRows'].forEach(key => {
@@ -59,6 +94,7 @@ window.DashboardUtils = (() => {
     });
     return [...set].sort((a, b) => periodSortValue(a) - periodSortValue(b));
   };
+
   const fillBlankPeriods = data => {
     const periods = uniquePeriods(data);
     if (periods.length !== 1) return data;
@@ -68,6 +104,7 @@ window.DashboardUtils = (() => {
     });
     return data;
   };
+
   const filterByPeriod = (data, period) => {
     if (!period || period === 'all') return data;
     return {
@@ -79,5 +116,6 @@ window.DashboardUtils = (() => {
       fileName: data.fileName || ''
     };
   };
+
   return { money, wan, num, clean, sum, get, periodFrom, periodSortValue, group, groupCountAmount, uniquePeriods, fillBlankPeriods, filterByPeriod };
 })();
