@@ -5,636 +5,221 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>医疗机构数据看板</title>
   <style>
-    :root {
-      --bg: #eef5ff;
-      --panel: rgba(255, 255, 255, 0.88);
-      --panel-strong: #ffffff;
-      --text: #172033;
-      --muted: #667085;
-      --primary: #1e88e5;
-      --primary-dark: #145da0;
-      --success: #16a34a;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --purple: #7c3aed;
-      --cyan: #06b6d4;
-      --border: rgba(30, 136, 229, 0.14);
-      --shadow: 0 18px 50px rgba(26, 64, 120, 0.12);
-      --radius: 22px;
+    :root{
+      --bg:#edf5ff;--card:#ffffff;--card2:rgba(255,255,255,.84);--text:#102033;--muted:#64748b;
+      --blue:#1e88e5;--cyan:#06b6d4;--green:#16a34a;--orange:#f59e0b;--red:#ef4444;--purple:#7c3aed;
+      --line:rgba(30,136,229,.16);--shadow:0 18px 45px rgba(20,70,130,.12);--radius:22px;
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.22), transparent 32%),
-        radial-gradient(circle at top right, rgba(6, 182, 212, 0.24), transparent 28%),
-        linear-gradient(135deg, #f7fbff 0%, var(--bg) 45%, #f3f7ff 100%);
-    }
-
-    .app {
-      width: min(1440px, 96vw);
-      margin: 0 auto;
-      padding: 26px 0 40px;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding: 22px 26px;
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      background: rgba(255, 255, 255, 0.72);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .logo {
-      width: 54px;
-      height: 54px;
-      border-radius: 18px;
-      display: grid;
-      place-items: center;
-      color: white;
-      font-size: 28px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #1e88e5, #06b6d4);
-      box-shadow: 0 14px 30px rgba(30, 136, 229, 0.28);
-    }
-
-    h1 {
-      margin: 0 0 6px;
-      font-size: clamp(24px, 3vw, 38px);
-      letter-spacing: 1px;
-    }
-
-    .sub-title {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .pill {
-      padding: 9px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: #fff;
-      color: var(--primary-dark);
-      font-weight: 700;
-      font-size: 13px;
-      box-shadow: 0 8px 20px rgba(30, 136, 229, 0.08);
-    }
-
-    .grid {
-      display: grid;
-      gap: 18px;
-      margin-top: 18px;
-    }
-
-    .cards {
-      grid-template-columns: repeat(6, minmax(160px, 1fr));
-    }
-
-    .card, .panel {
-      border: 1px solid var(--border);
-      background: var(--panel);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-    }
-
-    .card {
-      min-height: 132px;
-      padding: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::after {
-      content: "";
-      position: absolute;
-      right: -24px;
-      bottom: -24px;
-      width: 88px;
-      height: 88px;
-      border-radius: 50%;
-      background: currentColor;
-      opacity: 0.1;
-    }
-
-    .card .label {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 12px;
-    }
-
-    .card .value {
-      font-size: 30px;
-      font-weight: 850;
-      margin-bottom: 10px;
-      letter-spacing: -0.5px;
-    }
-
-    .card .trend {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--success);
-    }
-
-    .card .trend.down {
-      color: var(--danger);
-    }
-
-    .main-layout {
-      grid-template-columns: 1.45fr 0.9fr;
-      align-items: start;
-    }
-
-    .panel {
-      padding: 22px;
-      min-height: 280px;
-    }
-
-    .panel-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .panel-title h2 {
-      margin: 0;
-      font-size: 18px;
-    }
-
-    .panel-title span {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    canvas {
-      width: 100%;
-      max-width: 100%;
-      height: 260px;
-    }
-
-    .two-col {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .dept-row {
-      display: grid;
-      grid-template-columns: 84px 1fr 58px;
-      gap: 12px;
-      align-items: center;
-      margin: 14px 0;
-      font-size: 14px;
-    }
-
-    .bar-wrap {
-      height: 10px;
-      border-radius: 999px;
-      background: #e8f1fb;
-      overflow: hidden;
-    }
-
-    .bar {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--primary), var(--cyan));
-    }
-
-    .status-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .status-item {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 14px;
-      border-radius: 16px;
-      background: #f8fbff;
-      border: 1px solid rgba(102, 112, 133, 0.12);
-    }
-
-    .status-item b {
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .status-item p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    .badge {
-      align-self: flex-start;
-      white-space: nowrap;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .badge.warning { background: var(--warning); }
-    .badge.danger { background: var(--danger); }
-    .badge.success { background: var(--success); }
-    .badge.primary { background: var(--primary); }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      overflow: hidden;
-      border-radius: 16px;
-      font-size: 14px;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 14px 12px;
-      border-bottom: 1px solid rgba(102, 112, 133, 0.12);
-    }
-
-    th {
-      color: var(--muted);
-      font-size: 13px;
-      background: #f3f8ff;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-    }
-
-    .mini-stat {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .mini-stat div {
-      padding: 14px;
-      border-radius: 16px;
-      background: #f8fbff;
-      border: 1px solid rgba(102, 112, 133, 0.1);
-    }
-
-    .mini-stat strong {
-      display: block;
-      font-size: 22px;
-      margin-bottom: 4px;
-    }
-
-    .mini-stat span {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .footer-note {
-      color: var(--muted);
-      text-align: center;
-      font-size: 13px;
-      margin-top: 24px;
-    }
-
-    @media (max-width: 1180px) {
-      .cards { grid-template-columns: repeat(3, 1fr); }
-      .main-layout { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 760px) {
-      .topbar { align-items: flex-start; flex-direction: column; }
-      .top-actions { justify-content: flex-start; }
-      .cards, .two-col { grid-template-columns: 1fr; }
-      .mini-stat { grid-template-columns: 1fr; }
-      .panel { padding: 18px; }
-      canvas { height: 230px; }
-    }
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 8% 0%,rgba(30,136,229,.25),transparent 30%),radial-gradient(circle at 92% 8%,rgba(6,182,212,.22),transparent 28%),linear-gradient(135deg,#f8fbff,var(--bg));}
+    .app{width:min(1480px,96vw);margin:0 auto;padding:24px 0 42px}.top{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:24px 26px;border:1px solid var(--line);border-radius:30px;background:rgba(255,255,255,.78);box-shadow:var(--shadow);backdrop-filter:blur(14px)}
+    .brand{display:flex;gap:16px;align-items:center}.logo{width:58px;height:58px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;font-weight:900;font-size:30px;box-shadow:0 12px 28px rgba(30,136,229,.3)}
+    h1{margin:0 0 6px;font-size:clamp(25px,3vw,38px);letter-spacing:1px}.sub{color:var(--muted);font-size:14px}.badges{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}.badge{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:800;color:#fff}.badge.blue{background:var(--blue)}.badge.green{background:var(--green)}.badge.orange{background:var(--orange)}.badge.red{background:var(--red)}.badge.purple{background:var(--purple)}.badge.light{background:#fff;color:var(--blue);border:1px solid var(--line);box-shadow:0 8px 20px rgba(30,136,229,.08)}
+    .notice{margin-top:14px;padding:12px 16px;border-radius:18px;background:#fff7ed;border:1px solid rgba(245,158,11,.25);color:#92400e;font-size:13px;line-height:1.65}.notice b{color:#7c2d12}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.tab{border:1px solid var(--line);background:#fff;color:#225078;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;box-shadow:0 8px 20px rgba(30,136,229,.06)}.tab.active{background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;border-color:transparent}
+    .grid{display:grid;gap:18px}.cards{grid-template-columns:repeat(6,minmax(150px,1fr))}.card,.panel{border:1px solid var(--line);background:var(--card2);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(14px)}.card{position:relative;overflow:hidden;padding:19px;min-height:126px}.card:after{content:"";position:absolute;right:-26px;bottom:-26px;width:92px;height:92px;border-radius:50%;background:currentColor;opacity:.1}.card .label{font-size:13px;color:var(--muted);margin-bottom:10px}.card .value{font-size:28px;font-weight:900;margin-bottom:8px;letter-spacing:-.5px}.card .desc{font-size:12px;color:var(--muted);line-height:1.45}.layout{grid-template-columns:1.45fr .9fr}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:1fr 1fr 1fr}.panel{padding:22px;min-height:280px}.title{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}.title h2{margin:0;font-size:18px}.title span{font-size:13px;color:var(--muted)}canvas{width:100%;height:270px;display:block}.barrow{display:grid;grid-template-columns:98px 1fr 92px;align-items:center;gap:12px;margin:13px 0;font-size:14px}.barbox{height:11px;background:#e7f0fb;border-radius:999px;overflow:hidden}.bar{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--cyan))}.ranknum{text-align:right;font-weight:850}.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}.mini{padding:15px;border-radius:16px;background:#f8fbff;border:1px solid rgba(100,116,139,.12)}.mini strong{display:block;font-size:23px;margin-bottom:5px}.mini span{font-size:12px;color:var(--muted)}
+    .alert{display:flex;justify-content:space-between;gap:12px;padding:14px;border-radius:16px;background:#f8fbff;border:1px solid rgba(100,116,139,.12);margin-bottom:12px}.alert b{display:block;margin-bottom:5px}.alert p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}table{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border-radius:16px;overflow:hidden}th,td{padding:13px 12px;border-bottom:1px solid rgba(100,116,139,.12);text-align:left;white-space:nowrap}th{font-size:13px;color:#475569;background:#f2f7ff}tr:last-child td{border-bottom:none}.tablewrap{overflow:auto}.section{display:none}.section.active{display:block}.mt{margin-top:18px}.foot{text-align:center;color:var(--muted);font-size:13px;margin-top:22px;line-height:1.7}.mono{font-family:Consolas,Menlo,monospace}.kpi-note{font-size:12px;color:var(--muted);margin-top:8px}
+    @media(max-width:1180px){.cards{grid-template-columns:repeat(3,1fr)}.layout,.two,.three{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.badges{justify-content:flex-start}}@media(max-width:720px){.cards{grid-template-columns:1fr}.panel{padding:17px}.barrow{grid-template-columns:78px 1fr 72px}.split{grid-template-columns:1fr}canvas{height:240px}}
   </style>
 </head>
 <body>
   <main class="app">
-    <section class="topbar">
+    <section class="top">
       <div class="brand">
         <div class="logo">医</div>
         <div>
-          <h1>医疗机构数据看板</h1>
-          <div class="sub-title">门急诊、住院、床位、收入、运营预警一屏掌握</div>
+          <h1>医疗机构运营数据看板</h1>
+          <div class="sub">基于现有 Excel：内科医生门诊收入、挂号数据、结算数据、床日数据、收入数据</div>
         </div>
       </div>
-      <div class="top-actions">
-        <div class="pill">机构：示例医院</div>
-        <div class="pill" id="todayText">数据日期：--</div>
-        <div class="pill">刷新频率：5 分钟</div>
+      <div class="badges">
+        <span class="badge light">统计期间：2025年1月</span>
+        <span class="badge light">数据来源：Excel截图可见样本</span>
+        <span class="badge light" id="nowText">更新时间：--</span>
       </div>
     </section>
 
-    <section class="grid cards" id="metricCards"></section>
+    <div class="notice"><b>隐私处理：</b>截图中包含住院号、姓名等患者敏感信息，本页面只展示科室、费用类别、数量、金额等汇总指标，不在公开仓库中写入患者姓名和住院号。</div>
 
-    <section class="grid main-layout">
-      <div class="panel">
-        <div class="panel-title">
-          <h2>近 7 日门急诊趋势</h2>
-          <span>单位：人次</span>
+    <nav class="tabs">
+      <button class="tab active" data-target="overview">总览</button>
+      <button class="tab" data-target="income">门诊收入</button>
+      <button class="tab" data-target="register">挂号数据</button>
+      <button class="tab" data-target="settlement">住院结算</button>
+      <button class="tab" data-target="bedday">床日数据</button>
+    </nav>
+
+    <section id="overview" class="section active">
+      <div class="grid cards" id="metricCards"></div>
+      <div class="grid layout mt">
+        <div class="panel">
+          <div class="title"><h2>门诊收入科室分布</h2><span>按截图“收入数据”可见明细汇总</span></div>
+          <canvas id="deptIncomeChart" width="900" height="300"></canvas>
         </div>
-        <canvas id="visitTrend" width="900" height="300"></canvas>
+        <div class="panel">
+          <div class="title"><h2>运营提醒</h2><span>根据现有数据结构生成</span></div>
+          <div id="alerts"></div>
+        </div>
       </div>
-
-      <div class="panel">
-        <div class="panel-title">
-          <h2>床位占用情况</h2>
-          <span>全院实时</span>
+      <div class="grid two mt">
+        <div class="panel">
+          <div class="title"><h2>挂号人次月度趋势</h2><span>1月、2月完整可见，3月为截图部分</span></div>
+          <canvas id="regTrend" width="620" height="280"></canvas>
         </div>
-        <canvas id="bedDonut" width="420" height="300"></canvas>
-        <div class="mini-stat">
-          <div><strong>82%</strong><span>床位使用率</span></div>
-          <div><strong>246</strong><span>在院人数</span></div>
-          <div><strong>54</strong><span>可用床位</span></div>
+        <div class="panel">
+          <div class="title"><h2>住院结算科室占比</h2><span>按“结算数据”截图可见记录汇总</span></div>
+          <canvas id="settleDonut" width="420" height="280"></canvas>
         </div>
       </div>
     </section>
 
-    <section class="grid two-col">
-      <div class="panel">
-        <div class="panel-title">
-          <h2>科室门诊量排行</h2>
-          <span>今日 TOP 6</span>
+    <section id="income" class="section">
+      <div class="grid layout">
+        <div class="panel">
+          <div class="title"><h2>收入类别 TOP 10</h2><span>门诊收入，单位：元</span></div>
+          <div id="categoryRank"></div>
         </div>
-        <div id="deptRank"></div>
+        <div class="panel">
+          <div class="title"><h2>科室收入排行</h2><span>儿科、妇科、急诊科</span></div>
+          <div id="incomeDeptRank"></div>
+        </div>
       </div>
-
-      <div class="panel">
-        <div class="panel-title">
-          <h2>运营预警</h2>
-          <span>自动识别异常指标</span>
-        </div>
-        <div class="status-list" id="alerts"></div>
+      <div class="panel mt">
+        <div class="title"><h2>收入明细汇总表</h2><span>已去除个人信息，仅保留科室、类别、数量、收入</span></div>
+        <div class="tablewrap"><table><thead><tr><th>科室</th><th>类别</th><th>总数量</th><th>总收入</th><th>占门诊收入比</th></tr></thead><tbody id="incomeTable"></tbody></table></div>
       </div>
     </section>
 
-    <section class="panel grid" style="margin-top:18px;">
-      <div class="panel-title">
-        <h2>重点科室运行明细</h2>
-        <span>挂号、候诊、收入、床位</span>
+    <section id="register" class="section">
+      <div class="grid two">
+        <div class="panel">
+          <div class="title"><h2>2025年1月挂号科室排行</h2><span>按挂号总数</span></div>
+          <div id="regDeptRank"></div>
+        </div>
+        <div class="panel">
+          <div class="title"><h2>挂号收入趋势</h2><span>单位：元</span></div>
+          <canvas id="regIncomeTrend" width="620" height="280"></canvas>
+        </div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>科室</th>
-              <th>门诊人次</th>
-              <th>急诊人次</th>
-              <th>平均候诊</th>
-              <th>住院人数</th>
-              <th>床位使用率</th>
-              <th>今日收入</th>
-              <th>状态</th>
-            </tr>
-          </thead>
-          <tbody id="deptTable"></tbody>
-        </table>
+      <div class="panel mt">
+        <div class="title"><h2>挂号数据明细</h2><span>截图中 NULL 行为无科室/退号异常，已不计入排行</span></div>
+        <div class="tablewrap"><table><thead><tr><th>月份</th><th>科室</th><th>挂号总数</th><th>挂号总收入</th></tr></thead><tbody id="regTable"></tbody></table></div>
       </div>
     </section>
 
-    <div class="footer-note">说明：当前页面为静态 HTML 示例数据，可后续对接 HIS / LIS / EMR / 财务系统接口。</div>
+    <section id="settlement" class="section">
+      <div class="grid two">
+        <div class="panel">
+          <div class="title"><h2>结算费用科室排行</h2><span>截图可见 37 条住院结算记录</span></div>
+          <div id="settlementRank"></div>
+        </div>
+        <div class="panel">
+          <div class="title"><h2>结算数据说明</h2><span>保留汇总，不展示个人</span></div>
+          <div class="split">
+            <div class="mini"><strong id="settleTotalMini">--</strong><span>可见结算金额合计</span></div>
+            <div class="mini"><strong>37</strong><span>截图可见结算记录</span></div>
+            <div class="mini"><strong>4</strong><span>涉及科室</span></div>
+            <div class="mini"><strong>骨科2</strong><span>样本金额最高科室</span></div>
+          </div>
+          <div class="kpi-note">字段来源：年、月、日、就诊科室、患者总费用。住院号和姓名已脱敏不入库。</div>
+        </div>
+      </div>
+      <div class="panel mt">
+        <div class="title"><h2>结算汇总表</h2><span>按科室聚合</span></div>
+        <div class="tablewrap"><table><thead><tr><th>科室</th><th>结算记录数</th><th>结算金额</th><th>平均每笔费用</th><th>占比</th></tr></thead><tbody id="settlementTable"></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="bedday" class="section">
+      <div class="grid three">
+        <div class="panel"><div class="title"><h2>床日合计</h2><span>截图可见样本</span></div><div class="mini"><strong>343</strong><span>床日计费合计</span></div><div class="mini mt"><strong>20,110.00</strong><span>床位费合计</span></div></div>
+        <div class="panel"><div class="title"><h2>床日费用</h2><span>按可见记录估算</span></div><div class="mini"><strong>1,443.99</strong><span>平均床日费用</span></div><div class="mini mt"><strong>37</strong><span>可见床日记录</span></div></div>
+        <div class="panel"><div class="title"><h2>数据字段</h2><span>来自“床日数据”页</span></div><div class="alert"><div><b>床位总数、床位费、平均零售价</b><p>可用于统计床位费、平均床日费用、住院结算费用联动分析。</p></div><span class="badge blue">已接入</span></div></div>
+      </div>
+      <div class="panel mt">
+        <div class="title"><h2>床日费用分布</h2><span>按截图可见记录分组</span></div>
+        <canvas id="bedFeeChart" width="980" height="280"></canvas>
+      </div>
+    </section>
+
+    <div class="foot">当前版本按照截图可见数据结构和样本值制作；后续上传原始 Excel 后，可把页面改成读取完整表格或接口返回的真实汇总数据。</div>
   </main>
 
   <script>
-    const metrics = [
-      { label: '今日门诊人次', value: '3,286', trend: '较昨日 +8.6%', color: '#1e88e5' },
-      { label: '今日急诊人次', value: '426', trend: '较昨日 +3.2%', color: '#ef4444' },
-      { label: '在院人数', value: '246', trend: '较昨日 +12', color: '#7c3aed' },
-      { label: '床位使用率', value: '82%', trend: '安全区间', color: '#16a34a' },
-      { label: '今日医疗收入', value: '128.6万', trend: '较昨日 +6.1%', color: '#f59e0b' },
-      { label: '平均候诊时间', value: '18分', trend: '较昨日 -4分', color: '#06b6d4' }
+    const formatMoney = n => Number(n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const formatWan = n => (n/10000).toFixed(2) + '万';
+    const sum = arr => arr.reduce((a,b)=>a+b,0);
+
+    const outpatientIncome = [
+      ['儿科','B超',6,234.00],['儿科','CT',4,720.00],['儿科','材料费',125,597.70],['儿科','放射费',11,660.00],['儿科','挂号费',150,285.00],['儿科','检查费',1,150.00],['儿科','检验费',128,3578.00],['儿科','西药费',1230,8199.17],['儿科','治疗费',90,437.00],['儿科','中成药费',238,1848.32],
+      ['妇科','B超',300,12141.00],['妇科','CT',11,280.00],['妇科','材料费',434,1437.20],['妇科','草药费',65054,22053.17],['妇科','挂号费',581,1118.10],['妇科','检查费',108,1512.50],['妇科','检验费',2492,58609.00],['妇科','麻醉费',27.5,4291.50],['妇科','手术费',15,3610.00],['妇科','输氧费',12,24.00],['妇科','西药费',3096,16017.48],['妇科','心电图',11,330.00],['妇科','治疗费',893,9904.00],['妇科','中成药费',1389,6032.73],
+      ['急诊科','B超',60,2665.00],['急诊科','CT',1207,64320.00],['急诊科','材料费',1787,16330.37],['急诊科','床位费',8,64.00],['急诊科','放射费',173,10335.00],['急诊科','挂号费',1803,3750.60],['急诊科','护理费',1,20.00],['急诊科','检查费',5,145.00],['急诊科','检验费',1981,39739.50],['急诊科','麻醉费',8,200.00],['急诊科','其他医疗费',15,11.00],['急诊科','手术费',8,1998.00],['急诊科','输氧费',5,154.00]
     ];
 
-    const visits = [2380, 2640, 2510, 2890, 3060, 2920, 3286];
-    const visitLabels = ['周日', '周一', '周二', '周三', '周四', '周五', '今日'];
-
-    const departments = [
-      { name: '内科', count: 728, emergency: 86, wait: '22 分', inpatient: 68, bed: '89%', income: '24.6 万', status: '繁忙' },
-      { name: '外科', count: 563, emergency: 74, wait: '18 分', inpatient: 55, bed: '84%', income: '21.8 万', status: '正常' },
-      { name: '儿科', count: 486, emergency: 112, wait: '31 分', inpatient: 28, bed: '76%', income: '13.2 万', status: '预警' },
-      { name: '妇产科', count: 432, emergency: 38, wait: '16 分', inpatient: 42, bed: '81%', income: '18.5 万', status: '正常' },
-      { name: '检验科', count: 398, emergency: 32, wait: '12 分', inpatient: 0, bed: '-', income: '16.9 万', status: '正常' },
-      { name: '影像科', count: 356, emergency: 29, wait: '26 分', inpatient: 0, bed: '-', income: '19.1 万', status: '关注' }
+    const regData = [
+      ['2025年1月','儿科',73,58.40],['2025年1月','妇科',289,232.00],['2025年1月','急诊科',878,1028.00],['2025年1月','急诊外科',8,8.80],['2025年1月','健康管理科',1,0.80],['2025年1月','康复科',5,4.00],['2025年1月','口腔科',158,126.40],['2025年1月','内科',1651,1350.40],['2025年1月','皮肤科',101,81.20],['2025年1月','普外科',131,104.80],['2025年1月','疼痛科',56,44.80],['2025年1月','外科（骨科）',539,433.60],['2025年1月','消化内科',57,45.60],['2025年1月','心血管内科',2,1.60],['2025年1月','中医科',175,140.00],
+      ['2025年2月','儿科',35,28.00],['2025年2月','妇科',305,244.00],['2025年2月','急诊科',681,809.60],['2025年2月','急诊外科',11,12.00],['2025年2月','健康管理科',4,3.20],['2025年2月','康复科',4,3.20],['2025年2月','口腔科',197,158.00],['2025年2月','内科',1418,1166.80],['2025年2月','皮肤科',66,52.80],['2025年2月','普外科',130,104.00],['2025年2月','疼痛科',68,54.40],['2025年2月','外科（骨科）',487,390.40],['2025年2月','消化内科',32,25.60],['2025年2月','心血管内科',4,3.20],['2025年2月','中医科',179,143.20],
+      ['2025年3月','儿科',41,32.80],['2025年3月','妇科',425,340.00],['2025年3月','急诊科',799,949.60],['2025年3月','急诊外科',10,10.80]
     ];
 
-    const alerts = [
-      { title: '儿科候诊时间偏高', desc: '平均候诊 31 分钟，建议增开诊室或调整排班。', type: 'warning', text: '预警' },
-      { title: '急诊接诊量上升', desc: '今日急诊人次较昨日上升 3.2%，请关注夜间值班压力。', type: 'danger', text: '关注' },
-      { title: '床位总体处于安全区间', desc: '全院床位使用率 82%，仍有 54 张可用床位。', type: 'success', text: '正常' },
-      { title: '检验报告周转稳定', desc: '常规检验平均出报告时间保持在目标范围内。', type: 'primary', text: '稳定' }
-    ];
+    const settlement = [['骨科1',12,189317.45],['骨科2',17,214644.62],['内科',6,54630.67],['普外科',2,21310.29]];
+    const bedGroups = [['0-500元',4],['500-1000元',12],['1000-1500元',6],['1500-2000元',9],['2000元以上',6]];
 
-    function renderMetrics() {
-      const box = document.getElementById('metricCards');
-      box.innerHTML = metrics.map(item => `
-        <article class="card" style="color:${item.color}">
-          <div class="label">${item.label}</div>
-          <div class="value">${item.value}</div>
-          <div class="trend ${item.trend.includes('-') ? 'down' : ''}">${item.trend}</div>
-        </article>
-      `).join('');
+    function groupBy(rows, keyIndex, valueIndex){const m={};rows.forEach(r=>m[r[keyIndex]]=(m[r[keyIndex]]||0)+Number(r[valueIndex]));return Object.entries(m).sort((a,b)=>b[1]-a[1]);}
+    function renderCards(){
+      const totalIncome=sum(outpatientIncome.map(r=>r[3]));
+      const totalSettle=sum(settlement.map(r=>r[2]));
+      const janReg=sum(regData.filter(r=>r[0]==='2025年1月').map(r=>r[2]));
+      const janRegFee=sum(regData.filter(r=>r[0]==='2025年1月').map(r=>r[3]));
+      const cards=[
+        ['门诊收入明细',formatWan(totalIncome),'收入数据可见样本合计', '#1e88e5'],
+        ['住院结算金额',formatWan(totalSettle),'结算数据可见37条合计', '#7c3aed'],
+        ['1月挂号总数',janReg.toLocaleString('zh-CN'),'挂号数据按科室汇总', '#16a34a'],
+        ['1月挂号收入',formatMoney(janRegFee),'挂号总收入合计', '#06b6d4'],
+        ['床日计费合计','343','床日数据可见样本', '#f59e0b'],
+        ['床位费合计','20,110.00','床日数据可见样本', '#ef4444']
+      ];
+      document.getElementById('metricCards').innerHTML=cards.map(c=>`<article class="card" style="color:${c[3]}"><div class="label">${c[0]}</div><div class="value">${c[1]}</div><div class="desc">${c[2]}</div></article>`).join('');
+      document.getElementById('settleTotalMini').textContent=formatWan(totalSettle);
     }
-
-    function drawLineChart() {
-      const canvas = document.getElementById('visitTrend');
-      const ctx = canvas.getContext('2d');
-      const { width, height } = canvas;
-      ctx.clearRect(0, 0, width, height);
-
-      const padding = { top: 26, right: 26, bottom: 46, left: 58 };
-      const chartW = width - padding.left - padding.right;
-      const chartH = height - padding.top - padding.bottom;
-      const max = Math.max(...visits) + 300;
-      const min = Math.min(...visits) - 300;
-
-      ctx.strokeStyle = 'rgba(102,112,133,0.18)';
-      ctx.lineWidth = 1;
-      ctx.font = '13px Microsoft YaHei';
-      ctx.fillStyle = '#667085';
-
-      for (let i = 0; i <= 4; i++) {
-        const y = padding.top + (chartH / 4) * i;
-        ctx.beginPath();
-        ctx.moveTo(padding.left, y);
-        ctx.lineTo(width - padding.right, y);
-        ctx.stroke();
-        const value = Math.round(max - ((max - min) / 4) * i);
-        ctx.fillText(value, 10, y + 4);
-      }
-
-      const points = visits.map((v, i) => {
-        const x = padding.left + (chartW / (visits.length - 1)) * i;
-        const y = padding.top + chartH - ((v - min) / (max - min)) * chartH;
-        return { x, y, v };
-      });
-
-      const gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
-      gradient.addColorStop(0, 'rgba(30,136,229,0.28)');
-      gradient.addColorStop(1, 'rgba(30,136,229,0)');
-
-      ctx.beginPath();
-      points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
-      ctx.lineTo(points[points.length - 1].x, height - padding.bottom);
-      ctx.lineTo(points[0].x, height - padding.bottom);
-      ctx.closePath();
-      ctx.fillStyle = gradient;
-      ctx.fill();
-
-      ctx.beginPath();
-      points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
-      ctx.strokeStyle = '#1e88e5';
-      ctx.lineWidth = 4;
-      ctx.lineJoin = 'round';
-      ctx.stroke();
-
-      points.forEach((p, i) => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff';
-        ctx.fill();
-        ctx.strokeStyle = '#1e88e5';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        ctx.fillStyle = '#172033';
-        ctx.textAlign = 'center';
-        ctx.fillText(p.v, p.x, p.y - 14);
-        ctx.fillStyle = '#667085';
-        ctx.fillText(visitLabels[i], p.x, height - 16);
-      });
-      ctx.textAlign = 'left';
+    function renderAlerts(){
+      const html=[
+        ['急诊科门诊收入占比高','截图可见门诊收入中，急诊科与妇科金额最高，建议重点关注急诊CT、检验费、材料费构成。','orange','关注'],
+        ['内科挂号量最高','2025年1月内科挂号 1,651 人次，是门诊接诊压力最大的科室。','blue','排班'],
+        ['住院结算以骨科为主','可见结算数据中骨科1、骨科2合计占比较高，适合单独做骨科收入和床日分析。','purple','分析'],
+        ['患者信息已脱敏','公开页面不展示姓名和住院号，避免患者敏感信息外泄。','green','安全']
+      ];
+      document.getElementById('alerts').innerHTML=html.map(a=>`<div class="alert"><div><b>${a[0]}</b><p>${a[1]}</p></div><span class="badge ${a[2]}">${a[3]}</span></div>`).join('');
     }
-
-    function drawDonut() {
-      const canvas = document.getElementById('bedDonut');
-      const ctx = canvas.getContext('2d');
-      const { width, height } = canvas;
-      ctx.clearRect(0, 0, width, height);
-
-      const used = 0.82;
-      const cx = width / 2;
-      const cy = height / 2 - 6;
-      const radius = 92;
-      const lineWidth = 26;
-
-      ctx.lineWidth = lineWidth;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-      ctx.strokeStyle = '#e8f1fb';
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * used);
-      ctx.strokeStyle = '#16a34a';
-      ctx.stroke();
-
-      ctx.fillStyle = '#172033';
-      ctx.font = '800 42px Microsoft YaHei';
-      ctx.textAlign = 'center';
-      ctx.fillText('82%', cx, cy + 8);
-      ctx.fillStyle = '#667085';
-      ctx.font = '14px Microsoft YaHei';
-      ctx.fillText('床位使用率', cx, cy + 38);
-      ctx.textAlign = 'left';
+    function drawBarChart(id, labels, values, opts={}){
+      const c=document.getElementById(id),ctx=c.getContext('2d'),w=c.width,h=c.height,p={l:70,r:24,t:26,b:48};ctx.clearRect(0,0,w,h);const max=Math.max(...values)*1.18;const cw=w-p.l-p.r,ch=h-p.t-p.b;ctx.font='13px Microsoft YaHei';ctx.strokeStyle='rgba(100,116,139,.18)';ctx.fillStyle='#64748b';for(let i=0;i<=4;i++){const y=p.t+ch/4*i;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();ctx.fillText(Math.round(max/4*(4-i)).toLocaleString('zh-CN'),8,y+4)}
+      const bw=cw/values.length*.52;values.forEach((v,i)=>{const x=p.l+cw/values.length*i+cw/values.length*.24;const bh=v/max*ch;const y=p.t+ch-bh;const g=ctx.createLinearGradient(0,y,0,p.t+ch);g.addColorStop(0,opts.color||'#1e88e5');g.addColorStop(1,'#06b6d4');ctx.fillStyle=g;roundRect(ctx,x,y,bw,bh,8);ctx.fill();ctx.fillStyle='#102033';ctx.textAlign='center';ctx.fillText(opts.money?formatWan(v):v.toLocaleString('zh-CN'),x+bw/2,y-8);ctx.fillStyle='#64748b';ctx.fillText(labels[i],x+bw/2,h-18)});ctx.textAlign='left';
     }
-
-    function renderDeptRank() {
-      const max = Math.max(...departments.map(d => d.count));
-      document.getElementById('deptRank').innerHTML = departments.map(d => `
-        <div class="dept-row">
-          <strong>${d.name}</strong>
-          <div class="bar-wrap"><div class="bar" style="width:${Math.round(d.count / max * 100)}%"></div></div>
-          <span>${d.count}</span>
-        </div>
-      `).join('');
+    function drawLineChart(id, labels, values, money=false){
+      const c=document.getElementById(id),ctx=c.getContext('2d'),w=c.width,h=c.height,p={l:62,r:26,t:28,b:45};ctx.clearRect(0,0,w,h);const max=Math.max(...values)*1.2,min=0,cw=w-p.l-p.r,ch=h-p.t-p.b;ctx.font='13px Microsoft YaHei';ctx.strokeStyle='rgba(100,116,139,.18)';ctx.fillStyle='#64748b';for(let i=0;i<=4;i++){const y=p.t+ch/4*i;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();ctx.fillText(Math.round(max/4*(4-i)).toLocaleString('zh-CN'),8,y+4)}const pts=values.map((v,i)=>({x:p.l+cw/(values.length-1)*i,y:p.t+ch-(v-min)/(max-min)*ch,v}));
+      ctx.beginPath();pts.forEach((pt,i)=>i?ctx.lineTo(pt.x,pt.y):ctx.moveTo(pt.x,pt.y));ctx.lineWidth=4;ctx.strokeStyle='#1e88e5';ctx.stroke();pts.forEach((pt,i)=>{ctx.beginPath();ctx.arc(pt.x,pt.y,6,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#1e88e5';ctx.stroke();ctx.fillStyle='#102033';ctx.textAlign='center';ctx.fillText(money?formatMoney(pt.v):pt.v.toLocaleString('zh-CN'),pt.x,pt.y-14);ctx.fillStyle='#64748b';ctx.fillText(labels[i],pt.x,h-16)});ctx.textAlign='left';
     }
-
-    function renderAlerts() {
-      document.getElementById('alerts').innerHTML = alerts.map(item => `
-        <div class="status-item">
-          <div>
-            <b>${item.title}</b>
-            <p>${item.desc}</p>
-          </div>
-          <span class="badge ${item.type}">${item.text}</span>
-        </div>
-      `).join('');
+    function drawDonut(id, data){
+      const c=document.getElementById(id),ctx=c.getContext('2d'),w=c.width,h=c.height,cx=w/2,cy=h/2-4,r=88;ctx.clearRect(0,0,w,h);const total=sum(data.map(d=>d[1])),colors=['#1e88e5','#06b6d4','#7c3aed','#f59e0b','#16a34a'];let start=-Math.PI/2;data.forEach((d,i)=>{const ang=d[1]/total*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+ang);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();start+=ang});ctx.beginPath();ctx.arc(cx,cy,54,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.textAlign='center';ctx.fillStyle='#102033';ctx.font='800 24px Microsoft YaHei';ctx.fillText(formatWan(total),cx,cy+2);ctx.fillStyle='#64748b';ctx.font='13px Microsoft YaHei';ctx.fillText('结算合计',cx,cy+28);ctx.textAlign='left';
     }
-
-    function renderDeptTable() {
-      document.getElementById('deptTable').innerHTML = departments.map(d => {
-        const badge = d.status === '预警' ? 'warning' : d.status === '繁忙' ? 'danger' : d.status === '关注' ? 'primary' : 'success';
-        return `
-          <tr>
-            <td><strong>${d.name}</strong></td>
-            <td>${d.count}</td>
-            <td>${d.emergency}</td>
-            <td>${d.wait}</td>
-            <td>${d.inpatient}</td>
-            <td>${d.bed}</td>
-            <td>${d.income}</td>
-            <td><span class="badge ${badge}">${d.status}</span></td>
-          </tr>
-        `;
-      }).join('');
+    function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+    function renderRank(id, data, money=true){const max=Math.max(...data.map(d=>d[1]));document.getElementById(id).innerHTML=data.map(d=>`<div class="barrow"><strong>${d[0]}</strong><div class="barbox"><div class="bar" style="width:${Math.max(3,d[1]/max*100)}%"></div></div><div class="ranknum">${money?formatMoney(d[1]):d[1].toLocaleString('zh-CN')}</div></div>`).join('')}
+    function renderTables(){
+      const totalIncome=sum(outpatientIncome.map(r=>r[3]));
+      document.getElementById('incomeTable').innerHTML=outpatientIncome.sort((a,b)=>b[3]-a[3]).map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${Number(r[2]).toLocaleString('zh-CN')}</td><td>${formatMoney(r[3])}</td><td>${(r[3]/totalIncome*100).toFixed(2)}%</td></tr>`).join('');
+      document.getElementById('regTable').innerHTML=regData.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2].toLocaleString('zh-CN')}</td><td>${formatMoney(r[3])}</td></tr>`).join('');
+      const st=sum(settlement.map(r=>r[2]));
+      document.getElementById('settlementTable').innerHTML=settlement.sort((a,b)=>b[2]-a[2]).map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${formatMoney(r[2])}</td><td>${formatMoney(r[2]/r[1])}</td><td>${(r[2]/st*100).toFixed(2)}%</td></tr>`).join('');
     }
-
-    function setToday() {
-      const now = new Date();
-      const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-      document.getElementById('todayText').textContent = `数据日期：${text}`;
+    function init(){
+      document.getElementById('nowText').textContent='更新时间：'+new Date().toLocaleString('zh-CN',{hour12:false});
+      renderCards();renderAlerts();renderTables();
+      const deptIncome=groupBy(outpatientIncome,0,3);drawBarChart('deptIncomeChart',deptIncome.map(d=>d[0]),deptIncome.map(d=>d[1]),{money:true});renderRank('incomeDeptRank',deptIncome,true);
+      const cat=groupBy(outpatientIncome,1,3).slice(0,10);renderRank('categoryRank',cat,true);
+      const jan=regData.filter(r=>r[0]==='2025年1月').sort((a,b)=>b[2]-a[2]);renderRank('regDeptRank',jan.map(r=>[r[1],r[2]]),false);
+      const months=['2025年1月','2025年2月','2025年3月'];drawLineChart('regTrend',months,months.map(m=>sum(regData.filter(r=>r[0]===m).map(r=>r[2]))),false);drawLineChart('regIncomeTrend',months,months.map(m=>sum(regData.filter(r=>r[0]===m).map(r=>r[3]))),true);
+      renderRank('settlementRank',settlement.map(r=>[r[0],r[2]]),true);drawDonut('settleDonut',settlement.map(r=>[r[0],r[2]]));drawBarChart('bedFeeChart',bedGroups.map(b=>b[0]),bedGroups.map(b=>b[1]),{color:'#7c3aed'});
+      document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.target).classList.add('active')}));
     }
-
-    function init() {
-      setToday();
-      renderMetrics();
-      drawLineChart();
-      drawDonut();
-      renderDeptRank();
-      renderAlerts();
-      renderDeptTable();
-    }
-
-    window.addEventListener('resize', () => {
-      drawLineChart();
-      drawDonut();
-    });
-
     init();
   </script>
 </body>
